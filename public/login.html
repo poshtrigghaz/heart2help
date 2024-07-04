@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Register</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffe6e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .form-container h2 {
+            margin-bottom: 20px;
+            color: #ff6666;
+        }
+        .form-container input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .form-container button {
+            background-color: #ff6666;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            width: 100%;
+        }
+        .form-container button:hover {
+            background-color: #ff4d4d;
+        }
+        .switch-button {
+            background: none;
+            border: none;
+            color: #ff6666;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        .switch-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="auth-container">
+        <div id="login-form" class="form-container">
+            <h2>Login</h2>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <button class="switch-button" onclick="showRegisterForm()">Don't have an account? Register</button>
+        </div>
+
+        <div id="register-form" class="form-container" style="display:none;">
+            <h2>Register</h2>
+            <input type="email" id="register-email" placeholder="Email">
+            <input type="password" id="register-password" placeholder="Password">
+            <button onclick="register()">Register</button>
+            <button class="switch-button" onclick="showLoginForm()">Already have an account? Login</button>
+        </div>
+    </div>
+
+    <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+    apiKey: "AIzaSyC9eL7RoamdMovJUkZ5P5S-0pKqux7tc-8",
+    authDomain: "heart2help-eb7a9.firebaseapp.com",
+    projectId: "heart2help-eb7a9",
+    storageBucket: "heart2help-eb7a9.appspot.com",
+    messagingSenderId: "743382248734",
+    appId: "1:743382248734:web:73011e0b6b173c1e0aed0f"
+    };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Show login form
+        function showLoginForm() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+        }
+
+        // Show register form
+        function showRegisterForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        }
+
+        // Login function
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                // Signed in
+                const user = userCredential.user;
+                console.log('Login successful:', user);
+                alert('Login successful');
+                window.location.href = '../index.html'; // Redirect to the main app
+            } catch (error) {
+                console.error('Error during login:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Register function
+        async function register() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                // Registered
+                const user = userCredential.user;
+                console.log('Registration successful:', user);
+                alert('Registration successful');
+                showLoginForm();
+            } catch (error) {
+                console.error('Error during registration:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>
