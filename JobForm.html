@@ -15,6 +15,12 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><a href="/" id="heart2help-link">Heart2Help</a></li>
+            <li class="nav-right"><button id="logoutButton">Logout</button></li>
+        </ul>
+    </nav>
     <div class="container">
         <div class="apply_box">
             <h1>Post a volunteer/internship role</h1>
@@ -60,6 +66,10 @@
                     <div class="form_control">
                         <label for="skills">Skills (Enter two skills separated by a comma):</label>
                         <input type="text" id="skills" name="skills" placeholder="e.g., JavaScript, HTML" required>
+                    </div>
+                    <div class="form_control">
+                        <label for="job_link">Job Link</label>
+                        <textarea id="job_link" name="job_link" rows="1" cols="50" placeholder="Enter job application link..." required></textarea>
                     </div>
                 </div>
                 <div class="button_container">
@@ -109,6 +119,7 @@
             var postedOn = document.getElementById('date').value;
             var skillsInput = document.getElementById('skills').value;
             var skillsArray = skillsInput.split(',').map(skill => skill.trim());
+            var job_link = document.getElementById('job_link').value;
 
             console.log("Form values retrieved");
 
@@ -133,7 +144,8 @@
                     type: type,
                     jobType: jobType,
                     postedOn: formattedDate,
-                    skills: skillsArray
+                    skills: skillsArray,
+                    job_link: job_link // Add job_link to Firestore
                 });
                 console.log("Document written with ID: ", docRef.id);
                 // Optionally, clear the form after successful submission
@@ -141,6 +153,18 @@
             } catch (error) {
                 console.error("Error adding document: ", error);
             }
+        });
+
+        // Logout button event listener
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            firebase.auth().signOut().then(() => {
+                console.log('User logged out');
+                alert('You have been signed out.');
+                // Redirect to the login page after logout
+                window.location.href = '/login'; // Change this to the actual login page URL
+            }).catch((error) => {
+                console.error('Error logging out: ', error);
+            });
         });
     </script>
 </body>
