@@ -9,6 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <!-- Firebase Firestore SDK (non-modular version) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <!-- Firebase Authentication SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <!-- Day.js library -->
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
 </head>
@@ -21,19 +23,19 @@
                 <div class="form_container">
                     <div class="form_control">
                         <label for="first_name">Organization name:</label>
-                        <input type="text" id="first_name" name="first_name" placeholder="Organization name">
+                        <input type="text" id="first_name" name="first_name" placeholder="Organization name" required>
                     </div>
                     <div class="form_control">
                         <label for="last_name">Job Role:</label>
-                        <input type="text" id="last_name" name="last_name" placeholder="Enter Job Title...">
+                        <input type="text" id="last_name" name="last_name" placeholder="Enter Job Title..." required>
                     </div>
                     <div class="form_control">
                         <label for="email">Experience/Clearance</label>
-                        <input type="text" id="email" name="email" placeholder="Enter key requirement">
+                        <input type="text" id="email" name="email" placeholder="Enter key requirement" required>
                     </div>
                     <div class="form_control">
                         <label for="job_role">Location</label>
-                        <select id="job_role" name="job_role">
+                        <select id="job_role" name="job_role" required>
                             <option value="">Select job location</option>
                             <option value="frontend">On-site</option>
                             <option value="backend">Remote</option>
@@ -42,22 +44,22 @@
                     </div>
                     <div class="textarea_control">
                         <label for="address">Text area for summary</label>
-                        <textarea id="address" name="address" rows="4" cols="50" placeholder="Enter summary..."></textarea>
+                        <textarea id="address" name="address" rows="4" cols="50" placeholder="Enter summary..." required></textarea>
                     </div>
                     <div class="form_control">
                         <label for="job_type">Job Type</label>
-                        <select id="job_type" name="job_type">
+                        <select id="job_type" name="job_type" required>
                             <option value="part_time">Part-time</option>
                             <option value="full_time">Full-time</option>
                         </select>
                     </div>
                     <div class="form_control">
                         <label for="date">Date:</label>
-                        <input type="date" id="date" name="date" value="2024-01-01">
+                        <input type="date" id="date" name="date" value="2024-01-01" required>
                     </div>
                     <div class="form_control">
                         <label for="skills">Skills (Enter two skills separated by a comma):</label>
-                        <input type="text" id="skills" name="skills" placeholder="e.g., JavaScript, HTML">
+                        <input type="text" id="skills" name="skills" placeholder="e.g., JavaScript, HTML" required>
                     </div>
                 </div>
                 <div class="button_container">
@@ -85,6 +87,18 @@
         document.getElementById('jobApplicationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            console.log("Form submission started");
+
+            // Ensure the user is authenticated
+            var user = firebase.auth().currentUser;
+            if (!user) {
+                alert('You must be logged in to submit the form.');
+                console.log('User not authenticated');
+                return;
+            }
+
+            console.log("User is authenticated");
+
             // Retrieve form values
             var company = document.getElementById('first_name').value;
             var title = document.getElementById('last_name').value;
@@ -96,6 +110,8 @@
             var skillsInput = document.getElementById('skills').value;
             var skillsArray = skillsInput.split(',').map(skill => skill.trim());
 
+            console.log("Form values retrieved");
+
             // Validate skills input
             if (skillsArray.length !== 2) {
                 alert('Please enter exactly two skills separated by a comma.');
@@ -104,6 +120,8 @@
 
             // Format the date using Day.js
             var formattedDate = dayjs(postedOn).toDate();
+
+            console.log("Form values validated and date formatted");
 
             // Attempt to add data to Firestore
             try {
