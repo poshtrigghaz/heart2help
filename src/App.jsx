@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
-import Navbar from "./components/Navbar";
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Navbar from "./components/Navbar"; // Correct import path for the Navbar component
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import JobCard from "./components/JobCard";
 import ChatList from "./components/ChatList";
 import Chat from "./components/Chat";
 import dayjs from 'dayjs';
-import Profile from "./components/Profile";
+import Profile from "./components/Profile"; // Import the Profile component
 import { collection, query, orderBy, where, getDocs } from "firebase/firestore";
 import { db, auth } from "./firebase.config";
 
@@ -17,8 +17,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
-
-  const navigate = useNavigate();
 
   const fetchJobs = async () => {
     try {
@@ -78,13 +76,13 @@ function App() {
         fetchJobs();
       } else {
         setIsAuthenticated(false);
-        navigate('/login'); // Update this path according to your route setup
+        window.location.href = '../public/login.html';
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const handleJobClick = (job) => {
     setSelectedJob(job);
@@ -103,12 +101,11 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={isAuthenticated ? <MainContent fetchJobs={fetchJobs} fetchJobsCustom={fetchJobsCustom} customSearch={customSearch} jobs={jobs} onJobClick={handleJobClick} /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <MainContent fetchJobs={fetchJobs} fetchJobsCustom={fetchJobsCustom} customSearch={customSearch} jobs={jobs} onJobClick={handleJobClick} /> : <Navigate to="../public/login.html" />}
         />
         <Route path="/chats" element={<ChatList />} />
         <Route path="/chats/:orgId" element={<Chat />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/login" element={<Login />} /> {/* Ensure you have a Login component */}
       </Routes>
       {selectedJob && <JobDetail job={selectedJob} onClose={handleClose} />}
     </Router>
@@ -134,3 +131,26 @@ const MainContent = ({ fetchJobs, fetchJobsCustom, customSearch, jobs, onJobClic
 );
 
 const JobDetail = ({ job, onClose }) => (
+  <div className="fixed inset-0 bg-white bg-opacity-90 z-50 overflow-auto">
+    <div className="relative bg-white p-8 m-4 shadow-lg rounded-lg max-w-4xl mx-auto mt-20">
+      <button
+        onClick={onClose}
+        className="absolute top-0 right-0 mt-4 mr-4 text-xl font-bold"
+      >
+        &times;
+      </button>
+      <h1 className="text-3xl font-bold mb-4">{job.company}</h1>
+      <h2 className="text-2xl mb-4">{job.title}</h2>
+      <p><strong>Type:</strong> {job.type}</p>
+      <p><strong>Experience:</strong> {job.experience}</p>
+      <p><strong>Location:</strong> {job.location}</p>
+      <p><strong>Job Type:</strong> {job.jobType}</p>
+      <p><strong>Posted On:</strong> {dayjs(job.postedOn).format('MMMM D, YYYY')}</p>
+      <p><strong>Skills:</strong> {job.skills.join(', ')}</p>
+      <p><strong>Job Link:</strong> <a href={job.job_link} target="_blank" rel="noopener noreferrer">{job.job_link}</a></p>
+      <p><strong>More Data:</strong> {job.moreData}</p>
+    </div>
+  </div>
+);
+
+export default App;
