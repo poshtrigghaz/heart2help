@@ -17,7 +17,7 @@
 <body>
     <nav>
         <ul>
-            <li><a href="/" id="heart2help-link">Heart2Help</a></li>
+            <li><a href="/" id="heart2help-link">heart2help</a></li>
             <li class="nav-right"><button id="logoutButton">Logout</button></li>
         </ul>
     </nav>
@@ -43,9 +43,9 @@
                         <label for="job_role">Location</label>
                         <select id="job_role" name="job_role" required>
                             <option value="">Select job location</option>
-                            <option value="frontend">On-site</option>
-                            <option value="backend">Remote</option>
-                            <option value="full_stack">Hybrid</option>
+                            <option value="On-site">On-site</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Hybrid">Hybrid</option>
                         </select>
                     </div>
                     <div class="textarea_control">
@@ -55,8 +55,8 @@
                     <div class="form_control">
                         <label for="job_type">Job Type</label>
                         <select id="job_type" name="job_type" required>
-                            <option value="part_time">Part-time</option>
-                            <option value="full_time">Full-time</option>
+                            <option value="Part Time">Part-time</option>
+                            <option value="Full Time">Full-time</option>
                         </select>
                     </div>
                     <div class="form_control">
@@ -70,6 +70,10 @@
                     <div class="form_control">
                         <label for="job_link">Job Link</label>
                         <textarea id="job_link" name="job_link" rows="1" cols="50" placeholder="Enter job application link..." required></textarea>
+                    </div>
+                    <div class="textarea_control">
+                        <label for="more_data">More Data</label>
+                        <textarea id="more_data" name="more_data" rows="4" cols="50" placeholder="Enter more data..." required></textarea>
                     </div>
                 </div>
                 <div class="button_container">
@@ -120,6 +124,7 @@
             var skillsInput = document.getElementById('skills').value;
             var skillsArray = skillsInput.split(',').map(skill => skill.trim());
             var job_link = document.getElementById('job_link').value;
+            var moreData = document.getElementById('more_data').value; // Retrieve value of the new field
 
             console.log("Form values retrieved");
 
@@ -145,7 +150,8 @@
                     jobType: jobType,
                     postedOn: formattedDate,
                     skills: skillsArray,
-                    job_link: job_link // Add job_link to Firestore
+                    job_link: job_link, // Add job_link to Firestore
+                    moreData: moreData // Add moreData to Firestore
                 });
                 console.log("Document written with ID: ", docRef.id);
                 // Optionally, clear the form after successful submission
