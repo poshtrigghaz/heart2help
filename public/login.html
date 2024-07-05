@@ -6,15 +6,39 @@
     <title>Login and Register</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #ffe6e6;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+        }
+        .navbar {
+            background-color: #ff6666;
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+        }
+        .navbar button {
+            background-color: white;
+            color: #ff6666;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .navbar button:hover {
+            background-color: #ff4d4d;
+            color: white;
         }
         .form-container {
             background-color: white;
@@ -24,6 +48,7 @@
             text-align: center;
             width: 100%;
             max-width: 400px;
+            margin-top: 100px; /* Adjusted for fixed navbar */
         }
         .form-container h2 {
             margin-bottom: 20px;
@@ -61,52 +86,120 @@
         .switch-button:hover {
             text-decoration: underline;
         }
+        #alert-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            z-index: 1000;
+            text-align: center;
+        }
+        #alert-popup button {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <button onclick="showLoginForm()">Login</button>
+        <button onclick="showUserForm()">Register as User</button>
+        <button onclick="showOrgForm()">Register as Org</button>
+        <button onclick="checkUserType()">Open Form</button>
+    </div>
+
     <div id="auth-container">
         <div id="login-form" class="form-container">
             <h2>Login</h2>
             <input type="email" id="login-email" placeholder="Email">
             <input type="password" id="login-password" placeholder="Password">
             <button onclick="login()">Login</button>
-            <button class="switch-button" onclick="showRegisterForm()">Don't have an account? Register</button>
+            <button class="switch-button" onclick="showUserForm()">Don't have an account? Register</button>
         </div>
 
-        <div id="register-form" class="form-container" style="display:none;">
-            <h2>Register</h2>
+        <div id="user-form" class="form-container" style="display:none;">
+            <h2>Register as User</h2>
             <input type="email" id="register-email" placeholder="Email">
             <input type="password" id="register-password" placeholder="Password">
-            <button onclick="register()">Register</button>
+            <button onclick="registerUser()">Register</button>
             <button class="switch-button" onclick="showLoginForm()">Already have an account? Login</button>
+        </div>
+
+        <div id="org-form" class="form-container" style="display:none;">
+            <h2>Register as Organization</h2>
+            <input type="text" id="org-name" placeholder="Organization Name">
+            <input type="number" id="org-count" placeholder="Number of Employees">
+            <input type="text" id="org-industry" placeholder="Type of Industry">
+            <input type="email" id="org-email" placeholder="Organization Email">
+            <input type="password" id="org-password" placeholder="Password">
+            <button onclick="registerOrg()">Register</button>
         </div>
     </div>
 
+    <div id="alert-popup">
+        <p>You need to register as an organization to access this form.</p>
+        <button onclick="closeAlert()">Close</button>
+    </div>
+
     <script>
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-    apiKey: "AIzaSyC9eL7RoamdMovJUkZ5P5S-0pKqux7tc-8",
-    authDomain: "heart2help-eb7a9.firebaseapp.com",
-    projectId: "heart2help-eb7a9",
-    storageBucket: "heart2help-eb7a9.appspot.com",
-    messagingSenderId: "743382248734",
-    appId: "1:743382248734:web:73011e0b6b173c1e0aed0f"
-    };
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9eL7RoamdMovJUkZ5P5S-0pKqux7tc-8",
+            authDomain: "heart2help-eb7a9.firebaseapp.com",
+            projectId: "heart2help-eb7a9",
+            storageBucket: "heart2help-eb7a9.appspot.com",
+            messagingSenderId: "743382248734",
+            appId: "1:743382248734:web:73011e0b6b173c1e0aed0f"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         // Show login form
         function showLoginForm() {
             document.getElementById('login-form').style.display = 'block';
-            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('user-form').style.display = 'none';
+            document.getElementById('org-form').style.display = 'none';
         }
 
-        // Show register form
-        function showRegisterForm() {
+        // Show user form
+        function showUserForm() {
             document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('user-form').style.display = 'block';
+            document.getElementById('org-form').style.display = 'none';
+        }
+
+        // Show organization form
+        function showOrgForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('user-form').style.display = 'none';
+            document.getElementById('org-form').style.display = 'block';
+        }
+
+        // Close alert popup
+        function closeAlert() {
+            document.getElementById('alert-popup').style.display = 'none';
+        }
+
+        // Check user type and show form or alert
+        async function checkUserType() {
+            const user = auth.currentUser;
+            if (user) {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists && userDoc.data().type === 'org') {
+                    window.location.href = '/index.html'; // Redirect to the form
+                } else {
+                    document.getElementById('alert-popup').style.display = 'block';
+                }
+            } else {
+                document.getElementById('alert-popup').style.display = 'block';
+            }
         }
 
         // Login function
@@ -127,15 +220,15 @@
             }
         }
 
-        // Register function
-        async function register() {
+        // Register user function
+        async function registerUser() {
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
 
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                // Registered
                 const user = userCredential.user;
+                await db.collection('users').doc(user.uid).set({ type: 'user' });
                 console.log('Registration successful:', user);
                 alert('Registration successful');
                 showLoginForm();
@@ -144,6 +237,35 @@
                 alert(`Error: ${error.message}`);
             }
         }
+
+        // Register organization function
+        async function registerOrg() {
+            const orgName = document.getElementById('org-name').value;
+            const orgCount = document.getElementById('org-count').value;
+            const orgIndustry = document.getElementById('org-industry').value;
+            const orgEmail = document.getElementById('org-email').value;
+            const orgPassword = document.getElementById('org-password').value;
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(orgEmail, orgPassword);
+                const orgUser = userCredential.user;
+                await db.collection('users').doc(orgUser.uid).set({
+                    type: 'org',
+                    orgName: orgName,
+                    orgCount: orgCount,
+                    orgIndustry: orgIndustry
+                });
+                console.log('Organization Registration successful:', orgUser);
+                alert('Organization registration successful');
+                showLoginForm();
+            } catch (error) {
+                console.error('Error during organization registration:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // Initial load
+        showLoginForm(); // Show login form by default
     </script>
 </body>
 </html>
