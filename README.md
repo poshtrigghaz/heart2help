@@ -41,8 +41,8 @@ This project has been a significant learning experience, contributing to both pe
 1. **Clone the repository:**
 
    ```sh
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/poshtrigghaz/heart2help.git
+   cd heart2help
    ```
 
 2. **Install dependencies:**
