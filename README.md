@@ -59,7 +59,7 @@ This project has been a significant learning experience, contributing to both pe
 
 4. **Start the development server:**
    ```sh
-   npm start
+   npm run dev
    ```
 
 ### Contributing
