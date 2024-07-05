@@ -120,17 +120,13 @@ We welcome contributions from the community. If you find any issues or have sugg
 4. **Push to the branch** (`git push origin feature-branch`)
 5. **Create a Pull Request**
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 ## Contact
 
 For any questions or further information, feel free to contact any of the team members:
 
-- Temilade Dauda: [Email]
-- Nana Kwame Adjei-Antwi: [Email]
-- Ezeh Chekwube: [Email]
-- Micheal Oshogwe: [Email]
+- Temilade Dauda: dtemilade@gmail.com
+- Nana Kwame Adjei-Antwi: nkadjeiantwi5@gmail.com
+- Ezeh Chekwube:
+- Micheal Oshogwe: nkadjeiantwi5@gmail.com
 
 We hope you find our project useful and look forward to any feedback or contributions!
