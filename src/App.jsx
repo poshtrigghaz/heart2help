@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar"; // Correct import path for the Navbar component
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import JobCard from "./components/JobCard";
+import dayjs from 'dayjs';
+import Profile from "./components/Profile"; // Import the Profile component
 import { collection, query, orderBy, where, getDocs } from "firebase/firestore";
 import { db, auth } from "./firebase.config";
-import dayjs from 'dayjs';
 
 function App() {
   const [jobs, setJobs] = useState([]);
@@ -102,6 +103,7 @@ function App() {
           path="/"
           element={isAuthenticated ? <MainContent fetchJobs={fetchJobs} fetchJobsCustom={fetchJobsCustom} customSearch={customSearch} jobs={jobs} onJobClick={handleJobClick} /> : <Navigate to="../public/login.html" />}
         />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
       {selectedJob && <JobDetail job={selectedJob} onClose={handleClose} />}
     </Router>
