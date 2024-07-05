@@ -19,7 +19,7 @@
             margin: 0;
         }
         .navbar {
-            background-color: #ff6666;
+            background-color: rgb(180, 25, 110);
             width: 100%;
             padding: 15px;
             text-align: center;
@@ -28,7 +28,7 @@
         }
         .navbar button {
             background-color: white;
-            color: #ff6666;
+            color: rgb(180, 25, 110);
             border: none;
             padding: 10px 20px;
             margin: 0 10px;
@@ -37,7 +37,7 @@
             font-size: 1em;
         }
         .navbar button:hover {
-            background-color: #ff4d4d;
+            background-color: rgb(180, 25, 110);
             color: white;
         }
         .form-container {
@@ -52,7 +52,7 @@
         }
         .form-container h2 {
             margin-bottom: 20px;
-            color: #ff6666;
+            color: rgb(180, 25, 110);
         }
         .form-container input {
             width: calc(100% - 20px);
@@ -63,7 +63,7 @@
             font-size: 1em;
         }
         .form-container button {
-            background-color: #ff6666;
+            background-color: rgb(180, 25, 110);
             color: white;
             border: none;
             padding: 10px;
@@ -73,12 +73,12 @@
             width: 100%;
         }
         .form-container button:hover {
-            background-color: #ff4d4d;
+            background-color: rgb(224, 34, 139);
         }
         .switch-button, .forgot-password-link {
             background: none;
             border: none;
-            color: #ff6666;
+            color: rgb(180, 25, 110);
             cursor: pointer;
             margin-top: 15px;
             font-size: 0.9em;
@@ -224,10 +224,15 @@
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
 
+            if (!validateEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
-                await db.collection('users').doc(user.uid).set({ type: 'user', fullname: fullname });
+                await db.collection('users').doc(user.uid).set({ type: 'user', fullname: fullname, email: email });
 
                 await user.sendEmailVerification();
                 console.log('Registration successful:', user);
@@ -247,6 +252,11 @@
             const orgEmail = document.getElementById('org-email').value;
             const orgPassword = document.getElementById('org-password').value;
 
+            if (!validateEmail(orgEmail)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(orgEmail, orgPassword);
                 const orgUser = userCredential.user;
@@ -254,7 +264,8 @@
                     type: 'org',
                     orgName: orgName,
                     orgCount: orgCount,
-                    orgIndustry: orgIndustry
+                    orgIndustry: orgIndustry,
+                    email: orgEmail
                 });
 
                 await orgUser.sendEmailVerification();
@@ -265,6 +276,12 @@
                 console.error('Error during organization registration:', error);
                 alert(`Error: ${error.message}`);
             }
+        }
+
+        // Validate email format
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
         }
 
         // Initial load
