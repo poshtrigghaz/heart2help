@@ -4,6 +4,8 @@ import Navbar from "./components/Navbar"; // Correct import path for the Navbar 
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import JobCard from "./components/JobCard";
+import ChatList from "./components/ChatList";
+import Chat from "./components/Chat";
 import dayjs from 'dayjs';
 import Profile from "./components/Profile"; // Import the Profile component
 import { collection, query, orderBy, where, getDocs } from "firebase/firestore";
@@ -44,14 +46,12 @@ function App() {
       setCustomSearch(true);
       const tempJobs = [];
       const jobsRef = collection(db, "jobs");
-      const q = query(
-        jobsRef,
-        where("type", "==", jobCriteria.type),
-        where("title", "==", jobCriteria.title),
-        where("experience", "==", jobCriteria.experience),
-        where("location", "==", jobCriteria.location),
-        orderBy("postedOn", "desc")
-      );
+      const queries = [orderBy("postedOn", "desc")];
+
+      if (jobCriteria.type) queries.push(where("type", "==", jobCriteria.type));
+      if (jobCriteria.location) queries.push(where("location", "==", jobCriteria.location));
+
+      const q = query(jobsRef, ...queries);
       const req = await getDocs(q);
 
       req.forEach((job) => {
@@ -103,6 +103,8 @@ function App() {
           path="/"
           element={isAuthenticated ? <MainContent fetchJobs={fetchJobs} fetchJobsCustom={fetchJobsCustom} customSearch={customSearch} jobs={jobs} onJobClick={handleJobClick} /> : <Navigate to="../public/login.html" />}
         />
+        <Route path="/chats" element={<ChatList />} />
+        <Route path="/chats/:orgId" element={<Chat />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
       {selectedJob && <JobDetail job={selectedJob} onClose={handleClose} />}
@@ -146,6 +148,7 @@ const JobDetail = ({ job, onClose }) => (
       <p><strong>Posted On:</strong> {dayjs(job.postedOn).format('MMMM D, YYYY')}</p>
       <p><strong>Skills:</strong> {job.skills.join(', ')}</p>
       <p><strong>Job Link:</strong> <a href={job.job_link} target="_blank" rel="noopener noreferrer">{job.job_link}</a></p>
+      <p><strong>More Data:</strong> {job.moreData}</p>
     </div>
   </div>
 );
