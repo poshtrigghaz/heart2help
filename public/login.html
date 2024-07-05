@@ -75,7 +75,7 @@
         .form-container button:hover {
             background-color: #ff4d4d;
         }
-        .switch-button {
+        .switch-button, .forgot-password-link {
             background: none;
             border: none;
             color: #ff6666;
@@ -83,7 +83,7 @@
             margin-top: 15px;
             font-size: 0.9em;
         }
-        .switch-button:hover {
+        .switch-button:hover, .forgot-password-link:hover {
             text-decoration: underline;
         }
         #alert-popup {
@@ -108,8 +108,7 @@
     <div class="navbar">
         <button onclick="showLoginForm()">Login</button>
         <button onclick="showUserForm()">Register as User</button>
-        <button onclick="showOrgForm()">Register as Org</button>
-        <button onclick="checkUserType()">Open Form</button>
+        <button onclick="showOrgForm()">Register as Organization</button>
     </div>
 
     <div id="auth-container">
@@ -119,10 +118,12 @@
             <input type="password" id="login-password" placeholder="Password">
             <button onclick="login()">Login</button>
             <button class="switch-button" onclick="showUserForm()">Don't have an account? Register</button>
+            <button class="forgot-password-link" onclick="showForgotPasswordForm()">Forgot Password</button>
         </div>
 
         <div id="user-form" class="form-container" style="display:none;">
             <h2>Register as User</h2>
+            <input type="text" id="user-fullname" placeholder="Full Name">
             <input type="email" id="register-email" placeholder="Email">
             <input type="password" id="register-password" placeholder="Password">
             <button onclick="registerUser()">Register</button>
@@ -182,24 +183,14 @@
             document.getElementById('org-form').style.display = 'block';
         }
 
+        // Show forgot password form
+        function showForgotPasswordForm() {
+            window.location.href = '/forgot-password.html';
+        }
+
         // Close alert popup
         function closeAlert() {
             document.getElementById('alert-popup').style.display = 'none';
-        }
-
-        // Check user type and show form or alert
-        async function checkUserType() {
-            const user = auth.currentUser;
-            if (user) {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists && userDoc.data().type === 'org') {
-                    window.location.href = '/index.html'; // Redirect to the form
-                } else {
-                    document.getElementById('alert-popup').style.display = 'block';
-                }
-            } else {
-                document.getElementById('alert-popup').style.display = 'block';
-            }
         }
 
         // Login function
@@ -209,8 +200,15 @@
 
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                // Signed in
                 const user = userCredential.user;
+
+                if (!user.emailVerified) {
+                    alert('Your email is not verified. We have sent another verification email. Please verify and log in again.');
+                    await user.sendEmailVerification();
+                    await auth.signOut();
+                    return;
+                }
+
                 console.log('Login successful:', user);
                 alert('Login successful');
                 window.location.href = '/'; // Redirect to the main app
@@ -222,15 +220,18 @@
 
         // Register user function
         async function registerUser() {
+            const fullname = document.getElementById('user-fullname').value;
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
 
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
-                await db.collection('users').doc(user.uid).set({ type: 'user' });
+                await db.collection('users').doc(user.uid).set({ type: 'user', fullname: fullname });
+
+                await user.sendEmailVerification();
                 console.log('Registration successful:', user);
-                alert('Registration successful');
+                alert('Registration successful. Please verify your email before logging in.');
                 showLoginForm();
             } catch (error) {
                 console.error('Error during registration:', error);
@@ -255,8 +256,10 @@
                     orgCount: orgCount,
                     orgIndustry: orgIndustry
                 });
+
+                await orgUser.sendEmailVerification();
                 console.log('Organization Registration successful:', orgUser);
-                alert('Organization registration successful');
+                alert('Organization registration successful. Please verify your email before logging in.');
                 showLoginForm();
             } catch (error) {
                 console.error('Error during organization registration:', error);
