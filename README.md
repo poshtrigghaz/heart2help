@@ -26,6 +26,7 @@ Each member brings their unique expertise to the table, working collaboratively 
   - **Authentication**: For secure email and password validation.
   - **Firestore Database**: For storing and retrieving data in real-time.
   - **Cloud Messaging**: For implementing a demo chat feature.
+- **Vercel**: Platform on which the heart2help web app is hosted.
 
 ## Features
 
